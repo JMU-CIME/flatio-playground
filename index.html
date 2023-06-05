@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+</head>
+
+<body>
+  <div id="melody"></div>
+  <div id="countermelody"></div>
+  <script src="https://prod.flat-cdn.com/embed-js/v1.5.1/embed.min.js"></script>
+  <!-- <script src="node_modules/flat-embed/dist/embed.min.js"></script> -->
+  <script>
+
+    // example melody: Air for Band Melody Concert Pitch BC
+    // https://flat.io/score/61e0902a29718e0012080b97?sharingKey=7399632fbfbc793448182049dead3b88d921d7fab4328b5b9f5c589e654374d1d12a86d2e5567df1723b33e517b392552371129a9302bda49930f3e8a28dd857
+
+    var container = document.getElementById('melody');
+    var embedMelody = new Flat.Embed(container, {
+      score: '61e0902a29718e0012080b97',
+      width: "100%",
+      height: "350",
+      embedParams: {
+        sharingKey: '7399632fbfbc793448182049dead3b88d921d7fab4328b5b9f5c589e654374d1d12a86d2e5567df1723b33e517b392552371129a9302bda49930f3e8a28dd857',
+        appId: '60a51c906bcde01fc75a3ad0',
+        controlsPosition: 'bottom',
+      }
+    });
+
+
+    // FIXME: instead of this one being hardcoded, we should generate it (and then load it like https://github.com/FlatIO/embed-client#loadjsonscore-object-promisevoid-error ). to do this, need to start by getting the following parameters from the melody above: 
+    // time signature, clef, key signature, tempo, number of measures
+    // NOTE: it's possible that partway through a score some of these parameters could change, so we should check it for each measure as we generate the empty
+
+    // FYI: https://flat.io/developers/docs/embed/url-parameters
+
+    embedMelody.getCursorPosition().then(function (pos) {
+      console.log('pos', pos);
+    });
+
+    embedMelody.getNbMeasures().then(function (nbMeasures) {
+      console.log('nbMeasures', nbMeasures);
+    });
+
+    embedMelody.getMeasureDetails().then(function (measureDetails) {
+      console.log('measureDetails', measureDetails);
+    });
+
+    var i = 0;
+    embedMelody.getNoteDetails().then(function (noteDetails) {
+      console.log('noteDetails' + i++, noteDetails);
+    });
+
+    next(embedMelody)()
+      .then(next(embedMelody))
+      .then(next(embedMelody))
+      .then(next(embedMelody))
+
+    function next(embed) {
+      return () => {
+        console.log('nexting')
+        return embed.goRight()
+          .then(function () {
+            console.log('went right');
+            return Promise.all([
+              embed.getCursorPosition().then(function (pos) {
+                console.log('pos', pos);
+              }),
+              embed.getMeasureDetails().then(function (measureDetails) {
+                console.log('measureDetails', measureDetails);
+              }),
+              embed.getNoteDetails().then(function (noteDetails) {
+                console.log('noteDetails' + i++, noteDetails);
+              })
+            ])
+          });
+      }
+    }
+
+
+
+    var container = document.getElementById('countermelody');
+    var embedCountermelody = new Flat.Embed(container, {
+      score: '62689806be1cd400126c158a',
+      width: "100%",
+      height: "450",
+      embedParams: {
+        mode: 'edit',
+        sharingKey: 'fc580b58032c2e32d55543ad748043c3fd7f5cd90d764d3cbf01355c5d79a7acdd5c0944cd2127ef6f0b47138a074477c337da654712e73245ed674ffc944ad8',
+        appId: '60a51c906bcde01fc75a3ad0',
+        controlsPosition: 'bottom',
+      }
+    });
+  </script>
+</body>
+
+</html>
